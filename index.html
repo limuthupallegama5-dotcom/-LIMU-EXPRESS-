@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMU EXPRESS - Online Booking</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --secondary: #28a745;
+            --dark: #212529;
+            --light: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: var(--dark);
+        }
+        header {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 5px solid var(--primary);
+        }
+        header h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        header p { margin: 5px 0 0 0; color: #aaa; }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        select, input[type="file"], input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Bus Layout */
+        .bus-container {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+            border: 3px solid #ced4da;
+        }
+        .driver-seat {
+            text-align: right;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #6c757d;
+        }
+        .seating-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .seat {
+            background-color: #fff;
+            border: 2px solid #6c757d;
+            padding: 8px 0;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            user-select: none;
+        }
+        .seat.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .seat.aisle {
+            background: transparent;
+            border: none;
+            cursor: default;
+        }
+
+        /* Payment Section */
+        .payment-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.2s;
+        }
+        .btn-submit:hover { background-color: #218838; }
+
+        .summary {
+            font-size: 1.1rem;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>LIMU EXPRESS</h1>
+    <p>Luxury Transport Service | Yutong C12 Pro (48 Seats)</p>
+</header>
+
+<div class="container">
+    <!-- Bus Info -->
+    <div class="info-panel">
+        <div>
+            <strong>Trip 1: මහනුවර ➔ කොළඹ</strong><br>
+            පිටත්වීම: පෙ.ව. 4:00 (මහනුවරින්)<br>
+            පැමිණීම: පෙ.ව. 7:00 (කොළඹට)
+        </div>
+        <div>
+            <strong>Trip 2: කොළඹ ➔ මහනුවර</strong><br>
+            පිටත්වීම: ප.ව. 4:00 (කොළඹින්)<br>
+            පැමිණීම: රාත්‍රී 8:00 (මහනුවරට)
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="form-group">
+        <label for="trip-select">ගමන් වාරය තෝරන්න (Select Your Trip):</label>
+        <select id="trip-select">
+            <option value="kandy-colombo">පෙ.ව. 4:00 | මහනුවර සිට කොළඹ (Kandy to Colombo)</option>
+            <option value="colombo-kandy">ප.ව. 4:00 | කොළඹ සිට මහනුවර (Colombo to Kandy)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>ඔබගේ ආසන තෝරන්න (Select Seats):</label>
+        <div class="bus-container">
+            <div class="driver-seat">🚌 රියදුරු අසුන (Driver)</div>
+            <div class="seating-grid" id="seats-wrapper">
+                <!-- Seats will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="summary">
+        තෝරාගත් ආසන: <span id="selected-seats-display">නැත</span><br>
+        ටිකට් පතක මිල: රු. 1250<br>
+        මුළු මුදල: රු. <span id="total-price-display">0</span>
+    </div>
+
+    <!-- Payment Details -->
+    <div class="payment-box">
+        <h3>බැංකු ගිණුම් තොරතුරු (Bank Account Details)</h3>
+        <p>කරුණාකර මුදල් තැන්පත් කර රිසිට් පත පහතින් Upload කරන්න. අප විසින් එය පරීක්ෂා කර ආසන වෙන් කිරීම තහවුරු කරනු ඇත.</p>
+        <strong>බැංකුව:</strong> National Development Bank (NDB Bank)<br>
+        <strong>ගිණුම් නම:</strong> P W L N PALLEGAMA<br>
+        <strong>ගිණුම් අංකය:</strong> 115511576678<br>
+        <br>
+        <div class="form-group">
+            <label for="receipt-upload">බැංකු රිසිට් පත අප්ලෝඩ් කරන්න (Upload Bank Receipt):</label>
+            <input type="file" id="receipt-upload" accept="image/*" required>
+        </div>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="form-group" style="margin-top: 20px;">
+        <label for="cust-name">ඔබගේ නම (Your Name):</label>
+        <input type="text" id="cust-name" placeholder="නම ඇතුළත් කරන්න" required>
+    </div>
+    <div class="form-group">
+        <label for="cust-phone">දුරකථන අංකය (Phone Number):</label>
+        <input type="tel" id="cust-phone" placeholder="07XXXXXXXX" required>
+    </div>
+
+    <button class="btn-submit" onclick="handleBooking()">BOOK NOW</button>
+</div>
+
+<script>
+    const SEAT_PRICE = 1250; 
+    let selectedSeats = [];
+
+    const seatsWrapper = document.getElementById('seats-wrapper');
+    let seatNumber = 1;
+
+    for (let row = 0; row < 12; row++) {
+        for (let col = 0; col < 5; col++) {
+            if (col === 2) {
+                const aisle = document.createElement('div');
+                aisle.className = 'seat aisle';
+                seatsWrapper.appendChild(aisle);
+            } else {
+                const seat = document.createElement('div');
+                seat.className = 'seat';
+                seat.innerText = seatNumber;
+                seat.dataset.seatId = seatNumber;
+                
+                seat.addEventListener('click', function() {
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        selectedSeats = selectedSeats.filter(s => s !== this.dataset.seatId);
+                    } else {
+                        this.classList.add('selected');
+                        selectedSeats.push(this.dataset.seatId);
+                    }
+                    updateSummary();
+                });
+
+                seatsWrapper.appendChild(seat);
+                seatNumber++;
+            }
+        }
+    }
+
+    function updateSummary() {
+        document.getElementById('selected-seats-display').innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'නැත';
+        document.getElementById('total-price-display').innerText = selectedSeats.length * SEAT_PRICE;
+    }
+
+    function handleBooking() {
+        const name = document.getElementById('cust-name').value;
+        const phone = document.getElementById('cust-phone').value;
+        const receipt = document.getElementById('receipt-upload').files[0];
+
+        if (selectedSeats.length === 0) {
+            alert('කරුණාකර අවම වශයෙන් එක් ආසනයක්වත් තෝරන්න.');
+            return;
+        }
+        if (!receipt) {
+            alert('කරුණාකර ගෙවීම් රිසිට් පත අප්ලෝඩ් කරන්න.');
+            return;
+        }
+        if (!name || !phone) {
+            alert('කරුණාකර ඔබගේ නම සහ දුරකථන අංකය ඇතුළත් කරන්න.');
+            return;
+        }
+
+        alert(`ස්තූතියි ${name}! ඔයාගේ රිසිට් පත ලැබුණා. අප විසින් එය පරික්ෂා කර ආසන අංක ${selectedSeats.join(', ')} වෙන් කිරීම තහවුරු කර කෙටි පණිවිඩයක් (SMS) එවන්නම්.`);
+        
+        setTimeout(() => {
+            location.reload(); 
+        }, 1000);
+    }
+</script>
+
+</body>
+</html>
